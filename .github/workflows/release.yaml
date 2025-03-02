@@ -26,7 +26,7 @@ jobs:
       - name: Get latest micro version
         id: micro
         run: |
-          MICRO=$(git tag | grep "^${{ steps.date.outputs.DATE }}" | sort -V | tail -n1 | awk -F. '{print $4}')
+          MICRO=$(git tag | grep "^${{ steps.date.outputs.DATE }}\.[0-9]\+$" | sort -V | tail -n1 | awk -F. '{print $4}')
           if [ -z "$MICRO" ]; then
             NEW_MICRO=0
           else
