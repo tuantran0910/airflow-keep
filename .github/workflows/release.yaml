@@ -1,4 +1,4 @@
-name: 🚀 Release
+name: Create CalVer Release
 
 on:
   push:
@@ -7,13 +7,62 @@ on:
       - "prerelease"
 
 permissions:
-  id-token: write
   contents: write
 
 jobs:
-  call-python-release:
-    uses: thealtoclef/modular-automations/.github/workflows/python-release.yaml@main
-    with:
-      prerelease: ${{ github.ref_name == 'prerelease' }}
-      publish: true
-      runs_on: ubuntu-latest
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current date
+        id: date
+        run: |
+          echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_OUTPUT
+
+      - name: Get latest micro version
+        id: micro
+        run: |
+          MICRO=$(git tag | grep "^${{ steps.date.outputs.DATE }}" | sort -V | tail -n1 | awk -F. '{print $4}')
+          if [ -z "$MICRO" ]; then
+            NEW_MICRO=0
+          else
+            NEW_MICRO=$(($MICRO + 1))
+          fi
+          echo "MICRO=$NEW_MICRO" >> $GITHUB_OUTPUT
+
+      - name: Determine release type and create new tag
+        id: tag
+        run: |
+          TRIGGER_TAG="${{ github.ref_name }}"
+          BASE_TAG="${{ steps.date.outputs.DATE }}.${{ steps.micro.outputs.MICRO }}"
+          if [ "$TRIGGER_TAG" = "prerelease" ]; then
+            NEW_TAG="${BASE_TAG}rc"
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Prerelease $NEW_TAG" >> $GITHUB_OUTPUT
+          else
+            NEW_TAG="$BASE_TAG"
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Release $NEW_TAG" >> $GITHUB_OUTPUT
+          fi
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+
+      - name: Delete trigger tag
+        run: |
+          TRIGGER_TAG="${{ github.ref_name }}"
+          git push origin --delete $TRIGGER_TAG
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.NEW_TAG }}
+          release_name: ${{ steps.tag.outputs.RELEASE_NAME }}
+          draft: false
+          prerelease: ${{ steps.tag.outputs.IS_PRERELEASE }}
