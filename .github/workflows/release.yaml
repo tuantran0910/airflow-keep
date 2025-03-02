@@ -82,12 +82,15 @@ jobs:
           else
             echo "Initial release" > release_notes.md
           fi
-          # Use multi-line output syntax with a delimiter
-          cat << 'EOF' >> $GITHUB_OUTPUT
+          # Write multi-line output with proper delimiter
+          cat << EOF >> $GITHUB_OUTPUT
           RELEASE_NOTES<<DELIMITER
           $(cat release_notes.md)
           DELIMITER
           EOF
+          # Debug: Print the contents to verify
+          echo "Generated release notes:"
+          cat release_notes.md
 
       - name: Create Release
         uses: actions/create-release@v1
