@@ -34,6 +34,21 @@ jobs:
           fi
           echo "MICRO=$NEW_MICRO" >> $GITHUB_OUTPUT
 
+      - name: Get last release tag
+        id: last_release_tag
+        run: |
+          LAST_MICRO=$((${{ steps.micro.outputs.MICRO }} - 1))
+          if [ $LAST_MICRO -ge 0 ]; then
+            LAST_TAG="${{ steps.date.outputs.DATE }}.$LAST_MICRO"
+            if git tag | grep -q "^$LAST_TAG$"; then
+              echo "LAST_TAG=$LAST_TAG" >> $GITHUB_OUTPUT
+            else
+              echo "LAST_TAG=initial" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "LAST_TAG=initial" >> $GITHUB_OUTPUT
+          fi
+
       - name: Determine release type and create new tag
         id: tag
         run: |
@@ -57,6 +72,18 @@ jobs:
           TRIGGER_TAG="${{ github.ref_name }}"
           git push origin --delete $TRIGGER_TAG
 
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          if [ "${{ steps.last_release_tag.outputs.LAST_TAG }}" != "initial" ]; then
+            echo "## Changes since [${{ steps.last_release_tag.outputs.LAST_TAG }}](https://github.com/user/repo/releases/tag/${{ steps.last_release_tag.outputs.LAST_TAG }})" >> release_notes.md
+            echo "" >> release_notes.md
+            git log --pretty=format:'- %s' ${{ steps.last_release_tag.outputs.LAST_TAG }}..HEAD | sed 's/^/  /' >> release_notes.md
+          else
+            echo "Initial release" > release_notes.md
+          fi
+          echo "RELEASE_NOTES=$(cat release_notes.md)" >> $GITHUB_OUTPUT
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -64,5 +91,6 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.NEW_TAG }}
           release_name: ${{ steps.tag.outputs.RELEASE_NAME }}
+          body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
           draft: false
           prerelease: ${{ steps.tag.outputs.IS_PRERELEASE }}
