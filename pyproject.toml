@@ -6,8 +6,9 @@ authors = [{ name = "tuan.tran", email = "tntuan0910@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "apache-airflow>=2.10.2",
-    "packaging>=24.2",
+    "apache-airflow~=2.10.2",
+    "apache-airflow-providers-fab>=1.5.3",
+    "apache-airflow-providers-sqlite>=4.0.0",
     "pydantic>=2.10.6",
 ]
 keywords = ["airflow", "providers", "keep"]
@@ -22,7 +23,7 @@ requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["airflow/providers"]
+packages = ["airflow_providers"]
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
