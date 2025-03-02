@@ -1,0 +1,13 @@
+# Project management
+.python-version
+
+# Environment
+.env
+.venv/
+
+# Ruff
+.ruff_cache/
+
+# Build
+dist/
+**/*.egg-info

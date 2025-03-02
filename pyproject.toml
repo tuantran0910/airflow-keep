@@ -1,0 +1,16 @@
+[project]
+name = "airflow-providers"
+version = "0.1.0"
+description = "A custom collection of providers for Apache Airflow."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "apache-airflow>=2.10.2",
+    "packaging>=24.2",
+    "pydantic>=2.10.6",
+]
+
+[dependency-groups]
+dev = [
+    "reorder-python-imports>=3.14.0",
+]
