@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.12"
 
 [[package]]
@@ -86,6 +85,7 @@ wheels = [
 
 [[package]]
 name = "airflow-providers"
+version = "0.0.0.post8.dev0+b980cfc"
 source = { editable = "." }
 dependencies = [
     { name = "apache-airflow" },
