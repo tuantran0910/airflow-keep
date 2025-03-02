@@ -1,7 +1,8 @@
 [project]
 name = "airflow-providers"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A custom collection of providers for Apache Airflow."
+authors = [{ name = "tuan.tran", email = "tntuan0910@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,8 +10,22 @@ dependencies = [
     "packaging>=24.2",
     "pydantic>=2.10.6",
 ]
+keywords = ["airflow", "providers", "keep"]
 
 [dependency-groups]
 dev = [
     "reorder-python-imports>=3.14.0",
 ]
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["airflow/providers"]
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+pattern = "default-unprefixed"
