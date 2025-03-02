@@ -15,3 +15,4 @@ jobs:
     with:
       prerelease: ${{ github.ref_name == 'prerelease' }}
       publish: true
+      runs_on: ubuntu-latest
