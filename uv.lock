@@ -84,9 +84,9 @@ wheels = [
 ]
 
 [[package]]
-name = "airflow-keep"
-version = "0.1.0"
-source = { virtual = "." }
+name = "airflow-providers"
+version = "0.0.0.post4.dev0+19b7633"
+source = { editable = "." }
 dependencies = [
     { name = "apache-airflow" },
     { name = "packaging" },
