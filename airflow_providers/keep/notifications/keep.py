@@ -11,8 +11,8 @@ from pydantic import ValidationError
 
 from airflow.exceptions import AirflowException
 from airflow.notifications.basenotifier import BaseNotifier
-from airflow.providers.keep.hooks.keep import KeepAlertPayload
-from airflow.providers.keep.hooks.keep import KeepHook
+from airflow_providers.keep.hooks.keep import KeepAlertPayload
+from airflow_providers.keep.hooks.keep import KeepHook
 
 
 class KeepNotifier(BaseNotifier):
