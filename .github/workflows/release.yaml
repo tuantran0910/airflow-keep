@@ -42,11 +42,11 @@ jobs:
           if [ "$TRIGGER_TAG" = "prerelease" ]; then
             NEW_TAG="${BASE_TAG}rc"
             echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Prerelease $NEW_TAG" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=$NEW_TAG" >> $GITHUB_OUTPUT
           else
             NEW_TAG="$BASE_TAG"
             echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Release $NEW_TAG" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=$NEW_TAG" >> $GITHUB_OUTPUT
           fi
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
           git tag $NEW_TAG
