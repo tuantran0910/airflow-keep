@@ -6,6 +6,9 @@ on:
       - "release"
       - "prerelease"
 
+env:
+  UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }}
+
 jobs:
   call-python-release:
     permissions:
@@ -16,5 +19,3 @@ jobs:
       prerelease: ${{ github.ref_name == 'prerelease' }}
       publish: true
       runs_on: ubuntu-latest
-    env:
-      UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }}
