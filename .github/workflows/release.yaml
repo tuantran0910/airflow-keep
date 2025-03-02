@@ -11,6 +11,8 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    strategy:
+      fail-fast: false
     uses: thealtoclef/modular-automations/.github/workflows/python-release.yaml@main
     with:
       prerelease: ${{ github.ref_name == 'prerelease' }}
