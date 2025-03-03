@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import packaging.version
-
 from airflow import __version__ as airflow_version
 
 __all__ = ["__version__"]
