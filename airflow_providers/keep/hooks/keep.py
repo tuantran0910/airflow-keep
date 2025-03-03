@@ -1,5 +1,4 @@
 """Hook for interacting with Keep Alert Management System."""
-
 from __future__ import annotations
 
 from datetime import datetime
@@ -7,12 +6,12 @@ from typing import Any
 from typing import Literal
 from typing import Optional
 
+from airflow.exceptions import AirflowException
+from airflow.providers.http.hooks.http import HttpHook
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import ValidationError
-
-from airflow.exceptions import AirflowException
-from airflow.providers.http.hooks.http import HttpHook
+from requests.exceptions import RequestException
 
 
 class KeepAlertPayload(BaseModel):
@@ -32,8 +31,8 @@ class KeepAlertPayload(BaseModel):
     )
     environment: str = "production"
     service: Optional[str] = Field(None, description="Service or application affected")
-    source: Optional[str] = Field(
-        None, description="Monitoring system or source of the alert"
+    source: list[str] = Field(
+        ["python"], description="List of sources that triggered the alert"
     )
     message: Optional[str] = Field(
         None, max_length=2000, description="Concise alert summary"
@@ -109,11 +108,14 @@ class KeepHook(HttpHook):
     def __init__(
         self,
         keep_conn_id: str = "keep_default",
+        alert_endpoint: str = "/alerts/event",
         alert_data: Optional[dict[str, Any]] = None,
+        method: str = "POST",
         *args,
         **kwargs,
     ):
-        super().__init__(http_conn_id=keep_conn_id, *args, **kwargs)
+        super().__init__(http_conn_id=keep_conn_id, method=method, *args, **kwargs)
+        self.alert_endpoint = alert_endpoint
         self.alert_data = alert_data or {}
 
         self._validate_alert_data()
@@ -168,7 +170,7 @@ class KeepHook(HttpHook):
             alert_data.setdefault("firingStartTime", datetime.now().isoformat())
 
         # Validate again with updated timestamps
-        payload = KeepAlertPayload(**alert_data).model_dump(exclude_unset=True)
+        payload = KeepAlertPayload(**alert_data).model_dump()
 
         return headers, payload
 
@@ -183,7 +185,7 @@ class KeepHook(HttpHook):
 
         try:
             response = self.run(
-                endpoint=self.keep_endpoint,
+                endpoint=self.alert_endpoint,
                 json=payload,
                 headers=headers,
                 extra_options={"check_response": False},
@@ -193,7 +195,7 @@ class KeepHook(HttpHook):
                 error_msg = (
                     f"Keep API request failed: {response.status_code} - {response.text}"
                 )
-                raise AirflowException(error_msg)
+                raise RequestException(error_msg)
 
         except Exception as e:
             raise AirflowException(f"Failed to send alert to Keep: {str(e)}")

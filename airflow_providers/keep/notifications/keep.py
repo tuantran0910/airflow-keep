@@ -1,5 +1,4 @@
 """Airflow Notifier implementation for Keep alerting system."""
-
 from __future__ import annotations
 
 from datetime import datetime
@@ -7,10 +6,10 @@ from functools import cached_property
 from typing import Any
 from typing import Optional
 
-from pydantic import ValidationError
-
 from airflow.exceptions import AirflowException
 from airflow.notifications.basenotifier import BaseNotifier
+from pydantic import ValidationError
+
 from airflow_providers.keep.hooks.keep import KeepAlertPayload
 from airflow_providers.keep.hooks.keep import KeepHook
 
@@ -22,6 +21,7 @@ class KeepNotifier(BaseNotifier):
     Inherits from BaseNotifier and uses KeepHook for communication.
 
     :param keep_conn_id: Airflow connection ID configured with Keep credentials
+    :param alert_endpoint: Keep alert endpoint URL. Default to "/alerts/event".
     :param alert_data: Dictionary containing alert parameters (see KeepAlertPayload)
 
     Example usage:
@@ -46,12 +46,14 @@ class KeepNotifier(BaseNotifier):
     def __init__(
         self,
         keep_conn_id: str = "keep_default",
+        alert_endpoint: str = "/alerts/event",
         alert_data: Optional[dict[str, Any]] = None,
         *args,
         **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
         self.keep_conn_id = keep_conn_id
+        self.alert_endpoint = alert_endpoint
         self.alert_data = alert_data or {}
 
         self._validate_alert_data()
@@ -84,7 +86,11 @@ class KeepNotifier(BaseNotifier):
         """
         Initialize and cache KeepHook instance.
         """
-        return KeepHook(keep_conn_id=self.keep_conn_id, alert_data=self.alert_data)
+        return KeepHook(
+            keep_conn_id=self.keep_conn_id,
+            alert_endpoint=self.alert_endpoint,
+            alert_data=self.alert_data,
+        )
 
     def _enrich_with_context(self, context: dict[str, Any]) -> dict[str, Any]:
         """
