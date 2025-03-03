@@ -7,7 +7,6 @@ from typing import Any
 from typing import Literal
 from typing import Optional
 
-from pydantic import AnyHttpUrl
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import ValidationError
@@ -43,8 +42,8 @@ class KeepAlertPayload(BaseModel):
         None, max_length=2000, description="Detailed explanation"
     )
     pushed: bool = True
-    url: Optional[AnyHttpUrl] = Field(None, description="URL for additional context")
-    imageUrl: Optional[AnyHttpUrl] = Field(None, description="URL for relevant image")
+    url: Optional[str] = Field(None, description="URL for additional context")
+    imageUrl: Optional[str] = Field(None, description="URL for relevant image")
     labels: dict[str, Any] = Field(
         default_factory=dict, description="Key-value metadata pairs"
     )
