@@ -41,11 +41,6 @@ class KeepNotifier(BaseNotifier):
     template_fields = [
         "keep_conn_id",
         "alert_data",
-        "environment",
-        "service",
-        "source",
-        "message",
-        "description",
     ]
 
     def __init__(
