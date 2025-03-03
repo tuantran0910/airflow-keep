@@ -20,9 +20,10 @@ class KeepNotifier(BaseNotifier):
 
     Inherits from BaseNotifier and uses KeepHook for communication.
 
-    :param keep_conn_id: Airflow connection ID configured with Keep credentials
-    :param alert_endpoint: Keep alert endpoint URL. Default to "/alerts/event".
-    :param alert_data: Dictionary containing alert parameters (see KeepAlertPayload)
+    Args:
+        keep_conn_id: Airflow connection ID configured with Keep credentials
+        alert_endpoint: Keep alert endpoint URL. Default to "/alerts/event".
+        alert_data: Dictionary containing alert parameters (see KeepAlertPayload)
 
     Example usage:
     ```python

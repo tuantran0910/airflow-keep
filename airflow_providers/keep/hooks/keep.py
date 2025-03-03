@@ -63,6 +63,7 @@ class KeepHook(HttpHook):
 
     Args:
         keep_conn_id (str): Airflow connection ID configured with Keep credentials.
+        alert_endpoint (str): Keep alert endpoint URL. Default to "/alerts/event".
         alert_data (dict[str, Any]): Dictionary containing alert parameters (see KeepAlertPayload).
 
     Example usage:
