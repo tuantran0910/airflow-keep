@@ -1,6 +1,6 @@
 def get_provider_info():
     return {
-        "package-name": "airflow_providers",
+        "package-name": "airflow-providers",
         "name": "Airflow Providers",
         "description": "Custom Airflow Providers",
         "state": "ready",
