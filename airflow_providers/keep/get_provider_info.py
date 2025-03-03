@@ -10,7 +10,7 @@ def get_provider_info():
         ],
         "connection-types": [
             {
-                "hook-class-name": "airflow.providers.keep.hooks.keep.KeepHook",
+                "hook-class-name": "airflow_providers.keep.hooks.keep.KeepHook",
                 "connection-type": "keep",
             }
         ],

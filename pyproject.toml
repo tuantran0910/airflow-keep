@@ -4,6 +4,11 @@ dynamic = ["version"]
 description = "A custom collection of providers for Apache Airflow."
 authors = [{ name = "tuan.tran", email = "tntuan0910@gmail.com" }]
 readme = "README.md"
+classifiers = [
+    "Framework :: Apache Airflow",
+    "Framework :: Apache Airflow :: Provider",
+]
+keywords = ["airflow", "providers", "keep"]
 requires-python = ">=3.12"
 dependencies = [
     "apache-airflow~=2.10.2",
@@ -11,12 +16,14 @@ dependencies = [
     "apache-airflow-providers-sqlite>=4.0.0",
     "pydantic>=2.10.6",
 ]
-keywords = ["airflow", "providers", "keep"]
 
 [dependency-groups]
 dev = [
     "reorder-python-imports>=3.14.0",
 ]
+
+[project.urls]
+source = "https://github.com/tuantran0910/airflow-providers/"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
@@ -30,3 +37,6 @@ source = "uv-dynamic-versioning"
 
 [tool.uv-dynamic-versioning]
 pattern = "default-unprefixed"
+
+[project.entry-points."apache_airflow_provider"]
+provider_info = "airflow_providers.keep.get_provider_info:get_provider_info"
