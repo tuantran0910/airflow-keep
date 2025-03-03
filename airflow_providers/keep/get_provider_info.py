@@ -1,8 +1,8 @@
 def get_provider_info():
     return {
-        "package-name": "apache-airflow-providers-keep",
-        "name": "Keep",
-        "description": "`Keep <https://www.keephq.dev/>`__\n",
+        "package-name": "airflow_providers",
+        "name": "Airflow Providers",
+        "description": "Custom Airflow Providers",
         "state": "ready",
         "dependencies": ["apache-airflow>=2.9.0"],
         "versions": [
