@@ -152,9 +152,9 @@ class KeepHook(HttpHook):
         except Exception as e:
             raise AirflowException(f"Failed to retrieve Keep credentials: {str(e)}")
 
-    def _build_request_components(self) -> tuple[dict, dict]:
+    def _build_request_headers(self) -> tuple[dict, dict]:
         """
-        Construct headers and payload for Keep API request.
+        Construct headers for Keep API request.
 
         Returns:
             tuple[dict, dict]: Tuple containing (headers, payload).
@@ -164,7 +164,15 @@ class KeepHook(HttpHook):
             "Accept": "application/json",
             "X-API-KEY": self.keep_api_key,
         }
+        return headers
 
+    def _build_request_alert_payload(self) -> dict[str, Any]:
+        """
+        Build alert payload for sending to Keep.
+
+        Returns:
+            dict[str, Any]: Dictionary containing alert payload.
+        """
         alert_data = self.alert_data.copy()
         alert_data.setdefault("lastReceived", datetime.now().isoformat())
         if alert_data.get("status") == "firing":
@@ -172,8 +180,7 @@ class KeepHook(HttpHook):
 
         # Validate again with updated timestamps
         payload = KeepAlertPayload(**alert_data).model_dump()
-
-        return headers, payload
+        return payload
 
     def execute(self) -> None:
         """
@@ -182,7 +189,8 @@ class KeepHook(HttpHook):
         Raises:
             AirflowException: If API request fails.
         """
-        headers, payload = self._build_request_components()
+        headers = self._build_request_headers()
+        payload = self._build_request_alert_payload()
 
         try:
             response = self.run(
@@ -200,3 +208,30 @@ class KeepHook(HttpHook):
 
         except Exception as e:
             raise AirflowException(f"Failed to send alert to Keep: {str(e)}")
+
+    def enrich_alert(self, payload: dict[str, Any]) -> None:
+        """
+        Enrich Keep alert information
+
+        Params:
+            payload (dict[str, Any]): Dictionary containing alert information.
+        """
+        headers = self._build_request_headers()
+
+        try:
+            response = self.run(
+                endpoint="/alerts/enrich",
+                json=payload,
+                headers=headers,
+                extra_options={"check_response": False},
+                params={"dispose_on_new_alert": True},
+            )
+
+            if 400 <= response.status_code < 600:
+                error_msg = (
+                    f"Keep API request failed: {response.status_code} - {response.text}"
+                )
+                raise RequestException(error_msg)
+
+        except Exception as e:
+            raise AirflowException(f"Failed to enrich alert in Keep: {str(e)}")
