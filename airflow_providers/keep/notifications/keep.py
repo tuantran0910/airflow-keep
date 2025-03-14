@@ -132,7 +132,6 @@ class KeepNotifier(BaseNotifier):
             # Enrich alert data with task context information
             enriched_data = self._enrich_with_context(context)
             self.hook.alert_data.update(enriched_data)
-
-            self.hook.execute()
+            self.hook.execute(extra_options={"check_response": False})
         except Exception as e:
             raise AirflowException(f"Failed to send Keep notification: {str(e)}")

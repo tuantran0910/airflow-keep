@@ -8,6 +8,7 @@ from typing import Optional
 
 from airflow.exceptions import AirflowException
 from airflow.providers.http.hooks.http import HttpHook
+from airflow.operators.python import get_current_context
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import ValidationError
@@ -110,7 +111,7 @@ class KeepHook(HttpHook):
         self,
         keep_conn_id: str = "keep_default",
         alert_endpoint: str = "/alerts/event",
-        alert_data: Optional[dict[str, Any]] = None,
+        alert_data: dict[str, Any] = {},
         method: str = "POST",
         *args,
         **kwargs,
@@ -174,6 +175,11 @@ class KeepHook(HttpHook):
             dict[str, Any]: Dictionary containing alert payload.
         """
         alert_data = self.alert_data.copy()
+        if not alert_data.get("id"):
+            context = get_current_context()
+            alert_data["id"] = (
+                f"{context['dag'].dag_id}-{context['task_instance'].task_id}"
+            )
         alert_data.setdefault("lastReceived", datetime.now().isoformat())
         if alert_data.get("status") == "firing":
             alert_data.setdefault("firingStartTime", datetime.now().isoformat())
@@ -182,22 +188,34 @@ class KeepHook(HttpHook):
         payload = KeepAlertPayload(**alert_data).model_dump()
         return payload
 
-    def execute(self) -> None:
+    def execute(
+        self,
+        endpoint: Optional[str] = None,
+        payload: Optional[dict[str, Any]] = None,
+        params: Optional[dict[str, Any]] = None,
+        extra_options: Optional[dict[str, Any]] = None,
+    ) -> None:
         """
         Execute the request to send alert to Keep.
+
+        Params:
+            endpoint (str): Keep API endpoint URL. Default to alert_endpoint.
+            payload (dict[str, Any]): Dictionary containing alert information.
+            params (dict[str, Any]): Additional query parameters for the request.
+            extra_options (dict[str, Any]): Additional options for the request.
 
         Raises:
             AirflowException: If API request fails.
         """
         headers = self._build_request_headers()
-        payload = self._build_request_alert_payload()
 
         try:
             response = self.run(
-                endpoint=self.alert_endpoint,
-                json=payload,
+                endpoint=endpoint or self.alert_endpoint,
+                json=payload or self._build_request_alert_payload(),
                 headers=headers,
-                extra_options={"check_response": False},
+                extra_options=extra_options,
+                params=params,
             )
 
             if 400 <= response.status_code < 600:
@@ -208,30 +226,3 @@ class KeepHook(HttpHook):
 
         except Exception as e:
             raise AirflowException(f"Failed to send alert to Keep: {str(e)}")
-
-    def enrich_alert(self, payload: dict[str, Any]) -> None:
-        """
-        Enrich Keep alert information
-
-        Params:
-            payload (dict[str, Any]): Dictionary containing alert information.
-        """
-        headers = self._build_request_headers()
-
-        try:
-            response = self.run(
-                endpoint="/alerts/enrich",
-                json=payload,
-                headers=headers,
-                extra_options={"check_response": False},
-                params={"dispose_on_new_alert": True},
-            )
-
-            if 400 <= response.status_code < 600:
-                error_msg = (
-                    f"Keep API request failed: {response.status_code} - {response.text}"
-                )
-                raise RequestException(error_msg)
-
-        except Exception as e:
-            raise AirflowException(f"Failed to enrich alert in Keep: {str(e)}")
