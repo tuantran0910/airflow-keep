@@ -8,7 +8,6 @@ from typing import Optional
 
 from airflow.exceptions import AirflowException
 from airflow.providers.http.hooks.http import HttpHook
-from airflow.operators.python import get_current_context
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import ValidationError
@@ -175,11 +174,6 @@ class KeepHook(HttpHook):
             dict[str, Any]: Dictionary containing alert payload.
         """
         alert_data = self.alert_data.copy()
-        if not alert_data.get("id"):
-            context = get_current_context()
-            alert_data["id"] = (
-                f"{context['dag'].dag_id}-{context['task_instance'].task_id}"
-            )
         alert_data.setdefault("lastReceived", datetime.now().isoformat())
         if alert_data.get("status") == "firing":
             alert_data.setdefault("firingStartTime", datetime.now().isoformat())
