@@ -1,7 +1,7 @@
 [project]
-name = "airflow-providers"
+name = "airflow-keep"
 dynamic = ["version"]
-description = "A custom collection of providers for Apache Airflow."
+description = "A custom Airflow provider for Keep alert management platform"
 authors = [{ name = "tuan.tran", email = "tntuan0910@gmail.com" }]
 readme = "README.md"
 classifiers = [
@@ -11,7 +11,7 @@ classifiers = [
 keywords = ["airflow", "providers", "keep"]
 requires-python = ">=3.12"
 dependencies = [
-    "apache-airflow~=2.10.2",
+    "apache-airflow>=2.10.0",
     "apache-airflow-providers-fab>=1.5.3",
     "apache-airflow-providers-sqlite>=4.0.0",
     "pydantic>=2.10.6",
@@ -23,14 +23,14 @@ dev = [
 ]
 
 [project.urls]
-source = "https://github.com/tuantran0910/airflow-providers/"
+source = "https://github.com/tuantran0910/airflow-keep/"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["airflow_providers"]
+packages = ["dlt_providers"]
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
@@ -39,4 +39,4 @@ source = "uv-dynamic-versioning"
 pattern = "default-unprefixed"
 
 [project.entry-points."apache_airflow_provider"]
-provider_info = "airflow_providers.keep.get_provider_info:get_provider_info"
+provider_info = "providers.keep.get_provider_info:get_provider_info"

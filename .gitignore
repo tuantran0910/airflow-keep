@@ -1,5 +1,6 @@
 # Project management
 .python-version
+*.lock
 
 # Environment
 .env
