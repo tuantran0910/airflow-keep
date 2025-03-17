@@ -6,13 +6,12 @@ on:
       - "release"
       - "prerelease"
 
-permissions:
-  id-token: write
-  contents: write
-
 jobs:
   call-python-release:
     uses: thealtoclef/modular-automations/.github/workflows/python-release.yaml@main
+    permissions:
+      id-token: write
+      contents: read
     with:
       runs_on: ubuntu-latest
       prerelease: ${{ github.ref_name == 'prerelease' }}
