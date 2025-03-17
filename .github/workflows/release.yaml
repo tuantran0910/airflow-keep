@@ -8,10 +8,7 @@ on:
 
 jobs:
   call-python-release:
-    uses: thealtoclef/modular-automations/.github/workflows/python-release.yaml@main
-    permissions:
-      id-token: write
-      contents: write
+    uses: tuantran0910/modular-automations/.github/workflows/python-release.yaml@main
     with:
       runs_on: ubuntu-latest
       prerelease: ${{ github.ref_name == 'prerelease' }}
