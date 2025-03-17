@@ -6,14 +6,12 @@ on:
       - "release"
       - "prerelease"
 
-env:
-  UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }}
+permissions:
+  id-token: write
+  contents: write
 
 jobs:
   call-python-release:
-    permissions:
-      id-token: write
-      contents: write
     uses: thealtoclef/modular-automations/.github/workflows/python-release.yaml@main
     with:
       runs_on: ubuntu-latest
