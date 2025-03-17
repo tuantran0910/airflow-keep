@@ -38,8 +38,5 @@ source = "uv-dynamic-versioning"
 [tool.uv-dynamic-versioning]
 pattern = "default-unprefixed"
 
-[tool.uv]
-trusted-publishing = "always"
-
 [project.entry-points."apache_airflow_provider"]
 provider_info = "providers.keep.get_provider_info:get_provider_info"
